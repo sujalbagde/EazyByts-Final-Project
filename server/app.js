@@ -1,5 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
@@ -11,7 +13,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/bookings", bookingRoutes);
@@ -35,3 +37,13 @@ mongoose.connection.on("error", (err) => {
 mongoose.connection.on("disconnected", () => {
   console.log("Mongoose disconnected from MongoDB");
 });
+// Public routes (should be accessible without token)
+router.post("/register", registerController);
+router.post("/login", loginController);
+
+// Protected routes (require auth middleware)
+router.get("/profile", authMiddleware, profileController);
+router.get("/logout", authMiddleware, logoutController);
+// Admin routes (require admin role)
+router.get("/admin", authMiddleware, adminMiddleware, adminController);
+
